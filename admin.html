@@ -37,7 +37,7 @@
 
     <header>
         <h1>🌙 Moon Light Restaurant - लाइव काउंटर</h1>
-        <p>● सिस्टम ऑनलाइन है (Rajim VIP Road)</p>
+        <p id="system-status">● सिस्टम ऑनलाइन है (Rajim VIP Road)</p>
     </header>
 
     <div class="grid" id="orders-container">
@@ -46,31 +46,24 @@
 
     <script>
         const FIREBASE_URL = "https://moon-light-restaurant-a2b76-default-rtdb.firebaseio.com";
+        let localOrderKeys = []; // पहले से मौजूद ऑर्डर्स को ट्रैक करने के लिए
         let isFirstLoad = true;
 
         function playAlertSound() {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            let osc = audioCtx.createOscillator();
-            let gain = audioCtx.createGain();
-            osc.type = "sine";
-            osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); 
-            osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1); 
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            setTimeout(() => osc.stop(), 400);
-        }
-
-        function listenToOrders() {
-            const source = new EventSource(`${FIREBASE_URL}/orders.json`);
-            source.addEventListener('put', function(event) {
-                const data = JSON.parse(event.data);
-                if (data && data.data && !isFirstLoad) {
-                    playAlertSound();
-                }
-                isFirstLoad = false;
-                fetchCurrentOrders();
-            });
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); 
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1); 
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                setTimeout(() => osc.stop(), 400);
+            } catch(e) {
+                console.log("साउंड प्ले करने के लिए स्क्रीन पर कहीं एक बार क्लिक करें।");
+            }
         }
 
         function fetchCurrentOrders() {
@@ -78,10 +71,42 @@
             .then(res => res.json())
             .then(orders => {
                 const container = document.getElementById('orders-container');
+                
+                if (!orders || Object.keys(orders).length === 0) {
+                    container.innerHTML = "<p style='color: #a4b0be;'>अभी कोई पेंडिंग ऑर्डर नहीं है।</p>";
+                    localOrderKeys = [];
+                    isFirstLoad = false;
+                    return;
+                }
+
+                let currentPendingKeys = [];
+                let hasNewOrder = false;
+
+                // पहले चेक करें कि क्या कोई नया 'Pending' ऑर्डर आया है
+                for (let key in orders) {
+                    if (orders[key].status === "Pending") {
+                        currentPendingKeys.push(key);
+                        if (!localOrderKeys.includes(key)) {
+                            hasNewOrder = true;
+                        }
+                    }
+                }
+
+                // अगर यह पहला लोड नहीं है और कोई नया ऑर्डर आया है, तो घंटी बजाएं
+                if (!isFirstLoad && hasNewOrder) {
+                    playAlertSound();
+                }
+
+                localOrderKeys = currentPendingKeys;
+                isFirstLoad = false;
+
+                // स्क्रीन पर ऑर्डर्स का रेंडरिंग करना
                 container.innerHTML = "";
+                let count = 0;
 
                 for (let key in orders) {
                     if (orders[key].status === "Pending") {
+                        count++;
                         const order = orders[key];
                         let itemsHtml = "";
                         
@@ -104,6 +129,14 @@
                         container.appendChild(card);
                     }
                 }
+
+                if(count === 0) {
+                    container.innerHTML = "<p style='color: #a4b0be;'>अभी कोई पेंडिंग ऑर्डर नहीं है।</p>";
+                }
+            })
+            .catch(err => {
+                document.getElementById('system-status').innerText = "⚠️ कनेक्शन एरर (डेटाबेस चेक करें)";
+                document.getElementById('system-status').style.color = "#ff4757";
             });
         }
 
@@ -114,8 +147,14 @@
             }).then(() => fetchCurrentOrders());
         }
 
+        // हर 3 सेकंड में डेटाबेस से नया ऑर्डर ऑटो-चेक करने का लूप (ज़्यादा सुरक्षित और फ़ास्ट)
         fetchCurrentOrders();
-        listenToOrders();
+        setInterval(fetchCurrentOrders, 3000); 
+
+        // ब्राउज़र की सुरक्षा के कारण साउंड एक्टिव करने के लिए स्क्रीन पर कहीं भी क्लिक की अनुमति दें
+        document.body.addEventListener('click', function() {
+            console.log("साउंड सिस्टम एक्टिवेटेड");
+        });
     </script>
 </body>
 </html>
