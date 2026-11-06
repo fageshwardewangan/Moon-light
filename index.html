@@ -5,49 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moon Light Restaurant - Digital Menu</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background: #f4f6f9; color: #2d3436; padding-bottom: 90px; }
-        
-        /* Premium Header Styling */
-        header { 
-            background: linear-gradient(135deg, #1e272e, #0f141c); 
-            color: #f5f6fa; 
-            padding: 25px 20px; 
-            text-align: center; 
-            position: sticky; 
-            top: 0; 
-            z-index: 100; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
-            border-bottom: 3px solid #ffdd59;
-        }
-        header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: 1px; color: #ffdd59; text-transform: uppercase; }
+        header { background: linear-gradient(135deg, #1e272e, #0f141c); color: #f5f6fa; padding: 25px 20px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border-bottom: 3px solid #ffdd59; }
+        header h1 { font-size: 1.6rem; font-weight: 700; color: #ffdd59; text-transform: uppercase; }
         header p { font-size: 0.8rem; color: #a4b0be; margin-top: 2px; }
-        
-        .cabin-badge { background: #ffdd59; color: #1e272e; padding: 6px 18px; border-radius: 20px; font-weight: bold; display: inline-block; margin-top: 10px; font-size: 0.9rem; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+        .cabin-badge { background: #ffdd59; color: #1e272e; padding: 6px 18px; border-radius: 20px; font-weight: bold; display: inline-block; margin-top: 10px; font-size: 0.9rem; }
         .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
         .category-title { font-size: 1.25rem; margin: 25px 0 12px 0; color: #1e272e; border-left: 5px solid #ffdd59; padding-left: 10px; font-weight: 700; }
-        
-        /* Premium Menu Item Card */
-        .menu-item { background: white; border-radius: 16px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.02); transition: 0.2s; }
+        .menu-item { background: white; border-radius: 16px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .item-img { width: 85px; height: 85px; border-radius: 12px; object-fit: cover; margin-right: 15px; background: #eee; }
         .item-details { flex: 1; }
         .item-name { font-size: 1.1rem; font-weight: 600; color: #1e272e; }
         .item-price { font-size: 1.1rem; font-weight: 700; color: #ff4757; margin-top: 4px; }
-        
-        /* Premium Counter Buttons */
         .qty-counter { display: flex; align-items: center; background: #f1f2f6; border-radius: 25px; padding: 3px; border: 1px solid #e4e7eb; }
-        .qty-btn { background: white; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1.2rem; font-weight: bold; cursor: pointer; color: #1e272e; box-shadow: 0 2px 4px rgba(0,0,0,0.08); transition: 0.1s; }
-        .qty-btn:active { transform: scale(0.9); }
+        .qty-btn { background: white; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1.2rem; font-weight: bold; cursor: pointer; color: #1e272e; }
         .qty-val { width: 35px; text-align: center; font-weight: bold; font-size: 1rem; color: #1e272e; }
-        
-        /* Fixed Bottom Bar */
         .order-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1e272e; color: white; padding: 15px 20px; box-shadow: 0 -5px 15px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; max-width: 600px; margin: 0 auto; border-radius: 20px 20px 0 0; }
         .total-info { font-size: 1.1rem; font-weight: 500; color: #a4b0be; }
         .total-info span { color: #ffdd59; font-weight: 700; font-size: 1.3rem; }
-        .order-btn { background: #2ed573; color: white; border: none; padding: 12px 28px; border-radius: 25px; font-size: 1rem; font-weight: bold; cursor: pointer; box-shadow: 0 3px 8px rgba(46, 213, 115, 0.3); transition: 0.2s; }
-        .order-btn:active { transform: scale(0.95); }
-        .order-btn:disabled { background: #57606f; color: #a4b0be; cursor: not-allowed; box-shadow: none; }
-        
+        .order-btn { background: #2ed573; color: white; border: none; padding: 12px 28px; border-radius: 25px; font-size: 1rem; font-weight: bold; cursor: pointer; }
+        .order-btn:disabled { background: #57606f; color: #a4b0be; cursor: not-allowed; }
         footer { text-align: center; margin: 30px 0 10px 0; font-size: 0.8rem; color: #a4b0be; }
     </style>
 </head>
@@ -60,14 +38,10 @@
     </header>
 
     <div class="container">
-        <!-- कैटगरी: स्टार्टर्स -->
         <div class="category-title">विशेष स्टार्टर्स (Starters)</div>
         <div class="menu-item" data-id="1" data-name="पनीर टिक्का" data-price="240">
             <img class="item-img" src="https://unsplash.com" alt="Paneer Tikka">
-            <div class="item-details">
-                <div class="item-name">पनीर टिक्का</div>
-                <div class="item-price">₹240</div>
-            </div>
+            <div class="item-details"><div class="item-name">पनीर टिक्का</div><div class="item-price">₹240</div></div>
             <div class="qty-counter">
                 <button class="qty-btn" onclick="updateQty(1, -1)">-</button>
                 <div class="qty-val" id="qty-1">0</div>
@@ -77,105 +51,96 @@
 
         <div class="menu-item" data-id="2" data-name="वेज मंचूरियन" data-price="180">
             <img class="item-img" src="https://unsplash.com" alt="Veg Manchurian">
-            <div class="item-details">
-                <div class="item-name">वेज मंचूरियन</div>
-                <div class="item-price">₹180</div>
-            </div>
+            <div class="item-details"><div class="item-name">वेज मंचूरियन</div><div class="item-price">₹180</div></div>
             <div class="qty-counter">
                 <button class="qty-btn" onclick="updateQty(2, -1)">-</button>
                 <div class="qty-val" id="qty-2">0</div>
                 <button class="qty-btn" onclick="updateQty(2, 1)">+</button>
             </div>
         </div>
-
-        <!-- कैटगरी: मुख्य भोजन -->
-        <div class="category-title">मुख्य भोजन (Main Course)</div>
-        <div class="menu-item" data-id="3" data-name="कढ़ाई पनीर" data-price="280">
-            <img class="item-img" src="https://unsplash.com" alt="Kadai Paneer">
-            <div class="item-details">
-                <div class="item-name">कढ़ाई पनीर</div>
-                <div class="item-price">₹280</div>
-            </div>
-            <div class="qty-counter">
-                <button class="qty-btn" onclick="updateQty(3, -1)">-</button>
-                <div class="qty-val" id="qty-3">0</div>
-                <button class="qty-btn" onclick="updateQty(3, 1)">+</button>
-            </div>
-        </div>
-        
-        <footer>Moon Light Restaurant © 2026 | Developed for Premium Cabins</footer>
+        <footer>Moon Light Restaurant © 2026</footer>
     </div>
 
-    <!-- बॉटम बार -->
     <div class="order-bar">
         <div class="total-info">टोटल बिल: <span id="total-price">₹0</span></div>
         <button class="order-btn" id="submit-order-btn" onclick="placeOrder()" disabled>ऑर्डर भेजें</button>
     </div>
 
-    <script>
-        let cart = {};
-        let cabinNumber = "Unknown";
-        // ⚠️ यहाँ अपना असल फायरबेस डेटाबेस URL पेस्ट करें
-        const FIREBASE_URL = "https://moon-light-restaurant-a2b76-default-rtdb.firebaseio.com"; 
+    <script type="module">
+        import { initializeApp } from "https://gstatic.com";
+        import { getDatabase, ref, push } from "https://gstatic.com";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCi11FWl4N4pLQ3nq1eYUzek7882cfwCns",
+            authDomain: "://firebaseapp.com",
+            databaseURL: "https://moon-light-restaurant-a2b76-default-rtdb.firebaseio.com",
+            projectId: "moon-light-restaurant-a2b76",
+            storageBucket: "moon-light-restaurant-a2b76.firebasestorage.app",
+            messagingSenderId: "447549147766",
+            appId: "1:447549147766:web:63543b03aee7d96e156d57"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        window.cart = {};
+        window.cabinNumber = "Unknown";
 
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             const cabin = urlParams.get('cabin');
             if(cabin) {
-                cabinNumber = cabin;
-                document.getElementById('cabin-display').innerText = "📍 प्राइवेट कैबिन: " + cabinNumber;
+                window.cabinNumber = cabin;
+                document.getElementById('cabin-display').innerText = "📍 प्राइवेट कैबिन: " + window.cabinNumber;
             } else {
                 document.getElementById('cabin-display').innerText = "📍 काउंटर ऑर्डर";
             }
         };
 
-        function updateQty(id, change) {
+        window.updateQty = function(id, change) {
             const itemElement = document.querySelector(`.menu-item[data-id="${id}"]`);
             const name = itemElement.getAttribute('data-name');
             const price = parseInt(itemElement.getAttribute('data-price'));
             
-            if (!cart[id]) cart[id] = { name: name, price: price, qty: 0 };
-            cart[id].qty += change;
-            if (cart[id].qty <= 0) delete cart[id];
+            if (!window.cart[id]) window.cart[id] = { name: name, price: price, qty: 0 };
+            window.cart[id].qty += change;
+            if (window.cart[id].qty <= 0) delete window.cart[id];
 
-            document.getElementById(`qty-${id}`).innerText = cart[id] ? cart[id].qty : 0;
+            document.getElementById(`qty-${id}`).innerText = window.cart[id] ? window.cart[id].qty : 0;
             calculateTotal();
         }
 
         function calculateTotal() {
             let total = 0, totalItems = 0;
-            for (let id in cart) {
-                total += cart[id].price * cart[id].qty;
-                totalItems += cart[id].qty;
+            for (let id in window.cart) {
+                total += window.cart[id].price * window.cart[id].qty;
+                totalItems += window.cart[id].qty;
             }
             document.getElementById('total-price').innerText = "₹" + total;
             document.getElementById('submit-order-btn').disabled = totalItems === 0;
         }
 
-        function placeOrder() {
+        window.placeOrder = function() {
             document.getElementById('submit-order-btn').disabled = true;
             document.getElementById('submit-order-btn').innerText = "भेजा जा रहा है...";
 
             const orderData = {
-                cabin: cabinNumber,
-                items: cart,
+                cabin: window.cabinNumber,
+                items: window.cart,
                 timestamp: new Date().getTime(),
                 status: "Pending"
             };
 
-            fetch(`${FIREBASE_URL}/orders.json`, {
-                method: 'POST',
-                body: JSON.stringify(orderData)
-            })
-            .then(res => {
+            push(ref(database, 'orders'), orderData)
+            .then(() => {
                 alert("✨ धन्यवाद! आपका ऑर्डर काउंटर पर भेज दिया गया है।");
-                cart = {};
+                window.cart = {};
                 document.querySelectorAll('.qty-val').forEach(el => el.innerText = '0');
                 calculateTotal();
                 document.getElementById('submit-order-btn').innerText = "ऑर्डर भेजें";
             })
             .catch(err => {
-                alert("नेटवर्क त्रुटि: ऑर्डर नहीं भेजा जा सका।");
+                alert("त्रुटि: ऑर्डर नहीं भेजा जा सका।");
                 document.getElementById('submit-order-btn').disabled = false;
             });
         }
