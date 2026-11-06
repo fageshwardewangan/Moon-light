@@ -7,35 +7,16 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background: #0f141c; color: #f5f6fa; padding: 25px; }
-        
-        header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 30px; 
-            border-bottom: 2px solid #1e272e; 
-            padding-bottom: 20px; 
-        }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #1e272e; padding-bottom: 20px; }
         header h1 { color: #ffdd59; font-size: 2rem; font-weight: 700; text-transform: uppercase; }
         header p { color: #2ed573; font-weight: bold; font-size: 1rem; }
-        
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
-        
-        /* Admin Order Card Design */
-        .order-card { background: #1e272e; border-radius: 16px; padding: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); border-top: 6px solid #ffdd59; animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
+        .order-card { background: #1e272e; border-radius: 16px; padding: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); border-top: 6px solid #ffdd59; }
         .card-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px; font-size: 1.2rem; border-bottom: 1px solid #2f3542; padding-bottom: 8px; color: #ffdd59; }
-        .order-body { min-height: 80px; }
         .order-item { display: flex; justify-content: space-between; font-size: 1.05rem; margin: 8px 0; color: #dcdde1; }
-        
         .complete-btn { width: 100%; background: #2ed573; color: #1e272e; border: none; padding: 12px; border-radius: 8px; margin-top: 20px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; }
         .complete-btn:hover { background: #26af5f; color: white; }
     </style>
-
-    <!-- Firebase Web SDK CDN - सुरक्षित और एरर-मुक्त कनेक्शन -->
-    <script src="https://gstatic.com"></script>
-    <script src="https://gstatic.com"></script>
 </head>
 <body>
 
@@ -48,11 +29,13 @@
         <p style='color: #a4b0be;'>ऑर्डर्स लोड हो रहे हैं...</p>
     </div>
 
-    <script>
-        // आपका असली फायरबेस क्रेडेंशियल यहाँ सफलतापूर्वक जुड़ गया है
+    <script type="module">
+        import { initializeApp } from "https://gstatic.com";
+        import { getDatabase, ref, onValue, update } from "https://gstatic.com";
+
         const firebaseConfig = {
             apiKey: "AIzaSyCi11FWl4N4pLQ3nq1eYUzek7882cfwCns",
-            authDomain: "moon-light-restaurant-a2b76.firebaseapp.com",
+            authDomain: "://firebaseapp.com",
             databaseURL: "https://moon-light-restaurant-a2b76-default-rtdb.firebaseio.com",
             projectId: "moon-light-restaurant-a2b76",
             storageBucket: "moon-light-restaurant-a2b76.firebasestorage.app",
@@ -60,13 +43,11 @@
             appId: "1:447549147766:web:63543b03aee7d96e156d57"
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
 
         let isFirstLoad = true;
 
-        // घंटी की टोन (Notification Ringtone)
         function playAlertSound() {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -80,12 +61,12 @@
                 osc.start();
                 setTimeout(() => osc.stop(), 400);
             } catch(e) {
-                console.log("साउंड प्ले बैक लॉक है। स्क्रीन पर एक बार क्लिक करें।");
+                console.log("साउंड अलर्ट चालू करने के लिए एक बार स्क्रीन पर क्लिक करें");
             }
         }
 
-        // फायरबेस SDK रियल-टाइम डेटा लिसनर
-        database.ref('orders').on('value', (snapshot) => {
+        // आधुनिक रीयल-टाइम डेटाबेस लिसनर
+        onValue(ref(database, 'orders'), (snapshot) => {
             const orders = snapshot.val();
             const container = document.getElementById('orders-container');
             container.innerHTML = "";
@@ -119,14 +100,13 @@
                             <span>🏠 कैबिन नंबर: ${order.cabin}</span>
                         </div>
                         <div class="card-body">${itemsHtml}</div>
-                        <button class="complete-btn" onclick="completeOrder('${key}')">सर्व हो गया (Clear)</button>
+                        <button class="complete-btn" onclick="window.completeOrder('${key}')">सर्व हो गया (Clear)</button>
                     `;
                     container.appendChild(card);
                     hasNewPending = true;
                 }
             }
 
-            // नया लाइव ऑर्डर आने पर साउंड बजाएं
             if (!isFirstLoad && hasNewPending) {
                 playAlertSound();
             }
@@ -136,21 +116,16 @@
             if(count === 0) {
                 container.innerHTML = "<p style='color: #a4b0be;'>अभी कोई पेंडिंग ऑर्डर नहीं है।</p>";
             }
-        }, (error) => {
-            document.getElementById('system-status').innerText = "⚠️ डेटाबेस कनेक्शन एरर";
-            document.getElementById('system-status').style.color = "#ff4757";
         });
 
-        // बटन क्लिक करने पर ऑर्डर को क्लियर (Complete) करना
-        function completeOrder(key) {
-            database.ref('orders/' + key).update({
+        window.completeOrder = function(key) {
+            update(ref(database, 'orders/' + key), {
                 status: "Completed"
             });
         }
 
-        // क्रोम ब्राउज़र की पॉलिसी के कारण साउंड इनेबल करने के लिए क्लिक इवेंट
         document.body.addEventListener('click', function() {
-            console.log("साउंड सिस्टम एक्टिवेटेड");
+            console.log("साउंड रेडी");
         });
     </script>
 </body>
