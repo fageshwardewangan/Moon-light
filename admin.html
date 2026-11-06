@@ -32,6 +32,10 @@
         .complete-btn { width: 100%; background: #2ed573; color: #1e272e; border: none; padding: 12px; border-radius: 8px; margin-top: 20px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; }
         .complete-btn:hover { background: #26af5f; color: white; }
     </style>
+
+    <!-- Firebase Web SDK CDN - सुरक्षित और एरर-मुक्त कनेक्शन -->
+    <script src="https://gstatic.com"></script>
+    <script src="https://gstatic.com"></script>
 </head>
 <body>
 
@@ -41,14 +45,28 @@
     </header>
 
     <div class="grid" id="orders-container">
-        <!-- लाइव ऑर्डर्स यहाँ दिखाई देंगे -->
+        <p style='color: #a4b0be;'>ऑर्डर्स लोड हो रहे हैं...</p>
     </div>
 
     <script>
-        const FIREBASE_URL = "https://moon-light-restaurant-a2b76-default-rtdb.firebaseio.com";
-        let localOrderKeys = []; // पहले से मौजूद ऑर्डर्स को ट्रैक करने के लिए
+        // आपका असली फायरबेस क्रेडेंशियल यहाँ सफलतापूर्वक जुड़ गया है
+        const firebaseConfig = {
+            apiKey: "AIzaSyCi11FWl4N4pLQ3nq1eYUzek7882cfwCns",
+            authDomain: "moon-light-restaurant-a2b76.firebaseapp.com",
+            databaseURL: "https://moon-light-restaurant-a2b76-default-rtdb.firebaseio.com",
+            projectId: "moon-light-restaurant-a2b76",
+            storageBucket: "moon-light-restaurant-a2b76.firebasestorage.app",
+            messagingSenderId: "447549147766",
+            appId: "1:447549147766:web:63543b03aee7d96e156d57"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         let isFirstLoad = true;
 
+        // घंटी की टोन (Notification Ringtone)
         function playAlertSound() {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -62,96 +80,75 @@
                 osc.start();
                 setTimeout(() => osc.stop(), 400);
             } catch(e) {
-                console.log("साउंड प्ले करने के लिए स्क्रीन पर कहीं एक बार क्लिक करें।");
+                console.log("साउंड प्ले बैक लॉक है। स्क्रीन पर एक बार क्लिक करें।");
             }
         }
 
-        function fetchCurrentOrders() {
-            fetch(`${FIREBASE_URL}/orders.json`)
-            .then(res => res.json())
-            .then(orders => {
-                const container = document.getElementById('orders-container');
-                
-                if (!orders || Object.keys(orders).length === 0) {
-                    container.innerHTML = "<p style='color: #a4b0be;'>अभी कोई पेंडिंग ऑर्डर नहीं है।</p>";
-                    localOrderKeys = [];
-                    isFirstLoad = false;
-                    return;
-                }
+        // फायरबेस SDK रियल-टाइम डेटा लिसनर
+        database.ref('orders').on('value', (snapshot) => {
+            const orders = snapshot.val();
+            const container = document.getElementById('orders-container');
+            container.innerHTML = "";
 
-                let currentPendingKeys = [];
-                let hasNewOrder = false;
-
-                // पहले चेक करें कि क्या कोई नया 'Pending' ऑर्डर आया है
-                for (let key in orders) {
-                    if (orders[key].status === "Pending") {
-                        currentPendingKeys.push(key);
-                        if (!localOrderKeys.includes(key)) {
-                            hasNewOrder = true;
-                        }
-                    }
-                }
-
-                // अगर यह पहला लोड नहीं है और कोई नया ऑर्डर आया है, तो घंटी बजाएं
-                if (!isFirstLoad && hasNewOrder) {
-                    playAlertSound();
-                }
-
-                localOrderKeys = currentPendingKeys;
+            if (!orders) {
+                container.innerHTML = "<p style='color: #a4b0be;'>अभी कोई पेंडिंग ऑर्डर नहीं है।</p>";
                 isFirstLoad = false;
+                return;
+            }
 
-                // स्क्रीन पर ऑर्डर्स का रेंडरिंग करना
-                container.innerHTML = "";
-                let count = 0;
+            let hasNewPending = false;
+            let count = 0;
 
-                for (let key in orders) {
-                    if (orders[key].status === "Pending") {
-                        count++;
-                        const order = orders[key];
-                        let itemsHtml = "";
-                        
-                        for (let id in order.items) {
-                            itemsHtml += `<div class="order-item">
-                                <span>${order.items[id].name} x ${order.items[id].qty}</span>
-                                <span>₹${order.items[id].price * order.items[id].qty}</span>
-                            </div>`;
-                        }
-
-                        const card = document.createElement('div');
-                        card.className = "order-card";
-                        card.innerHTML = `
-                            <div class="card-header">
-                                <span>🏠 कैबिन नंबर: ${order.cabin}</span>
-                            </div>
-                            <div class="card-body">${itemsHtml}</div>
-                            <button class="complete-btn" onclick="completeOrder('${key}')">सर्व हो गया (Clear)</button>
-                        `;
-                        container.appendChild(card);
+            for (let key in orders) {
+                if (orders[key].status === "Pending") {
+                    count++;
+                    const order = orders[key];
+                    let itemsHtml = "";
+                    
+                    for (let id in order.items) {
+                        itemsHtml += `<div class="order-item">
+                            <span>${order.items[id].name} x ${order.items[id].qty}</span>
+                            <span>₹${order.items[id].price * order.items[id].qty}</span>
+                        </div>`;
                     }
-                }
 
-                if(count === 0) {
-                    container.innerHTML = "<p style='color: #a4b0be;'>अभी कोई पेंडिंग ऑर्डर नहीं है।</p>";
+                    const card = document.createElement('div');
+                    card.className = "order-card";
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <span>🏠 कैबिन नंबर: ${order.cabin}</span>
+                        </div>
+                        <div class="card-body">${itemsHtml}</div>
+                        <button class="complete-btn" onclick="completeOrder('${key}')">सर्व हो गया (Clear)</button>
+                    `;
+                    container.appendChild(card);
+                    hasNewPending = true;
                 }
-            })
-            .catch(err => {
-                document.getElementById('system-status').innerText = "⚠️ कनेक्शन एरर (डेटाबेस चेक करें)";
-                document.getElementById('system-status').style.color = "#ff4757";
+            }
+
+            // नया लाइव ऑर्डर आने पर साउंड बजाएं
+            if (!isFirstLoad && hasNewPending) {
+                playAlertSound();
+            }
+            
+            isFirstLoad = false;
+
+            if(count === 0) {
+                container.innerHTML = "<p style='color: #a4b0be;'>अभी कोई पेंडिंग ऑर्डर नहीं है।</p>";
+            }
+        }, (error) => {
+            document.getElementById('system-status').innerText = "⚠️ डेटाबेस कनेक्शन एरर";
+            document.getElementById('system-status').style.color = "#ff4757";
+        });
+
+        // बटन क्लिक करने पर ऑर्डर को क्लियर (Complete) करना
+        function completeOrder(key) {
+            database.ref('orders/' + key).update({
+                status: "Completed"
             });
         }
 
-        function completeOrder(key) {
-            fetch(`${FIREBASE_URL}/orders/${key}.json`, {
-                method: 'PATCH',
-                body: JSON.stringify({ status: "Completed" })
-            }).then(() => fetchCurrentOrders());
-        }
-
-        // हर 3 सेकंड में डेटाबेस से नया ऑर्डर ऑटो-चेक करने का लूप (ज़्यादा सुरक्षित और फ़ास्ट)
-        fetchCurrentOrders();
-        setInterval(fetchCurrentOrders, 3000); 
-
-        // ब्राउज़र की सुरक्षा के कारण साउंड एक्टिव करने के लिए स्क्रीन पर कहीं भी क्लिक की अनुमति दें
+        // क्रोम ब्राउज़र की पॉलिसी के कारण साउंड इनेबल करने के लिए क्लिक इवेंट
         document.body.addEventListener('click', function() {
             console.log("साउंड सिस्टम एक्टिवेटेड");
         });
