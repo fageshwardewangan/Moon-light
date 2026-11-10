@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moon Light Restaurant - Digital Menu</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fdf6e3;
+            background-image: linear-gradient(rgba(255, 250, 240, 0.90), rgba(255, 250, 240, 0.92)), 
+                              url('https://unsplash.com');
+            background-size: cover;
+            background-attachment: fixed;
+            color: #333;
+        }
+        header {
+            background-color: #2c1e16;
+            color: #f4d03f;
+            text-align: center;
+            padding: 18px 15px;
+            border-bottom: 4px solid #d4ac0d;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 26px;
+        }
+        header p {
+            margin: 5px 0 0;
+            font-size: 12px;
+            color: #ecf0f1;
+            font-family: Arial, sans-serif;
+        }
+        .veg-badge {
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-top: 6px;
+            font-family: Arial, sans-serif;
+        }
+        .collage {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            padding: 6px;
+            background: #2c1e16;
+        }
+        .collage img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #d4ac0d;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 15px;
+            padding-bottom: 110px;
+        }
+        .cabin-box {
+            background: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            border-left: 5px solid #d4ac0d;
+            font-family: Arial, sans-serif;
+        }
+        .cabin-box select, .cabin-box input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+        .menu-item {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #e0d6c3;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .item-info h3 {
+            margin: 0 0 4px;
+            font-size: 17px;
+            color: #2c1e16;
+        }
+        .item-info span {
+            font-weight: bold;
+            color: #27ae60;
+            font-family: Arial, sans-serif;
+        }
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .qty-btn {
+            background: #d4ac0d;
+            color: #2c1e16;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .qty-val {
+            font-size: 16px;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            min-width: 20px;
+            text-align: center;
+        }
+        .order-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #2c1e16;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .order-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #success-msg {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px;
+            font-family: Arial, sans-serif;
+            border: 1px solid #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🌙 Moon Light Restaurant</h1>
+    <p>Near PWD Rest House, VIP Road Rajim, Gobra Nawapara, Chhattisgarh 493885</p>
+    <div class="veg-badge">🌿 100% Pure Veg Menu</div>
+</header>
+
+<div class="collage">
+    <img src="https://unsplash.com" alt="Paneer Chilli">
+    <img src="https://unsplash.com" alt="Fried Rice">
+    <img src="https://unsplash.com" alt="Dessert">
+</div>
+
+<div class="container" id="main-container">
+    <div class="cabin-box">
+        <label><strong>Select Cabin / Table:</strong></label>
+        <select id="cabinSelect">
+            <option value="Cabin 1">Cabin 1</option>
+            <option value="Cabin 2">Cabin 2</option>
+            <option value="Cabin 3">Cabin 3</option>
+            <option value="Cabin 4">Cabin 4</option>
+            <option value="Cabin 5">Cabin 5</option>
+            <option value="Cabin 6">Cabin 6</option>
+        </select>
+        <input type="text" id="custName" placeholder="Aapka Naam (Optional)">
+    </div>
+
+    <div class="menu-item">
+        <div class="item-info"><h3>Paneer Chilli</h3><span>₹170</span></div>
+        <div class="qty-controls">
+            <button class="qty-btn" onclick="changeQty('Paneer Chilli', 170, -1, 'q1')">-</button>
+            <span class="qty-val" id="q1">0</span>
+            <button class="qty-btn" onclick="changeQty('Paneer Chilli', 170, 1, 'q1')">+</button>
+        </div>
+    </div>
+
+    <div class="menu-item">
+        <div class="item-info"><h3>Fried Rice</h3><span>₹150</span></div>
+        <div class="qty-controls">
+            <button class="qty-btn" onclick="changeQty('Fried Rice', 150, -1, 'q2')">-</button>
+            <span class="qty-val" id="q2">0</span>
+            <button class="qty-btn" onclick="changeQty('Fried Rice', 150, 1, 'q2')">+</button>
+        </div>
+    </div>
+
+    <div class="menu-item">
+        <div class="item-info"><h3>Corn Chilli</h3><span>₹150</span></div>
+        <div class="qty-controls">
+            <button class="qty-btn" onclick="changeQty('Corn Chilli', 150, -1, 'q3')">-</button>
+            <span class="qty-val" id="q3">0</span>
+            <button class="qty-btn" onclick="changeQty('Corn Chilli', 150, 1, 'q3')">+</button>
+        </div>
+    </div>
+
+    <div class="menu-item">
+        <div class="item-info"><h3>Crispy Corn</h3><span>₹130</span></div>
+        <div class="qty-controls">
+            <button class="qty-btn" onclick="changeQty('Crispy Corn', 130, -1, 'q4')">-</button>
+            <span class="qty-val" id="q4">0</span>
+            <button class="qty-btn" onclick="changeQty('Crispy Corn', 130, 1, 'q4')">+</button>
+        </div>
+    </div>
+
+    <div class="menu-item">
+        <div class="item-info"><h3>Soya Chilli</h3><span>₹130</span></div>
+        <div class="qty-controls">
+            <button class="qty-btn" onclick="changeQty('Soya Chilli', 130, -1, 'q5')">-</button>
+            <span class="qty-val" id="q5">0</span>
+            <button class="qty-btn" onclick="changeQty('Soya Chilli', 130, 1, 'q5')">+</button>
+        </div>
+    </div>
+
+    <div class="menu-item">
+        <div class="item-info"><h3>Ice Cream</h3><span>₹70</span></div>
+        <div class="qty-controls">
+            <button class="qty-btn" onclick="changeQty('Ice Cream', 70, -1, 'q6')">-</button>
+            <span class="qty-val" id="q6">0</span>
+            <button class="qty-btn" onclick="changeQty('Ice Cream', 70, 1, 'q6')">+</button>
+        </div>
+    </div>
+
+    <div class="menu-item">
+        <div class="item-info"><h3>Milk Shake</h3><span>₹80</span></div>
+        <div class="qty-controls">
+            <button class="qty-btn" onclick="changeQty('Milk Shake', 80, -1, 'q7')">-</button>
+            <span class="qty-val" id="q7">0</span>
+            <button class="qty-btn" onclick="changeQty('Milk Shake', 80, 1, 'q7')">+</button>
+        </div>
+    </div>
+
+    <div class="menu-item">
+        <div class="item-info"><h3>Water Bottle</h3><span>₹20</span></div>
+        <div class="qty-controls">
+            <button class="qty-btn" onclick="changeQty('Water Bottle', 20, -1, 'q8')">-</button>
+            <span class="qty-val" id="q8">0</span>
+            <button class="qty-btn" onclick="changeQty('Water Bottle', 20, 1, 'q8')">+</button>
+        </div>
+    </div>
+</div>
+
+<div id="success-msg">
+    <h2>✅ Order Sent to Kitchen!</h2>
+    <p>Aapka order kitchen counter par pahunch gaya hai. Kripya thoda intezar karein.</p>
+    <button onclick="location.reload()" style="padding:10px 20px; background:#2c1e16; color:#f4d03f; border:none; border-radius:5px; margin-top:10px; cursor:pointer;">Aur Order Karein</button>
+</div>
+
+<div class="order-bar" id="order-bar">
+    <div>
+        <div style="font-size: 12px; color: #ccc;">Total Amount (Pay at Counter)</div>
+        <div style="font-size: 20px; font-weight: bold; color: #f4d03f;">₹<span id="total-price">0</span></div>
+    </div>
+    <button class="order-btn" id="confirmBtn" onclick="placeOrder()">Confirm Order ✔</button>
+</div>
+
+<script>
+    const FIREBASE_URL = "APNA_FIREBASE_URL_YAHAN_DALEIN";
+
+    const urlParams = new URLSearchParams(window.location.search);
+const cabinParam = urlParams.get('cabin');
+if (cabinParam) {
+document.getElementById("cabinSelect").value = "Cabin " + cabinParam;
+}
+let cart = {};
+function changeQty(name, price, delta, spanId) {
+if (!cart[name]) {
+cart[name] = { qty: 0, price: price };
+}
+cart[name].qty += delta;
+if (cart[name].qty < 0) cart[name].qty = 0;
+document.getElementById(spanId).innerText = cart[name].qty;
+updateTotal();
+}
+function updateTotal() {
+let total = 0;
+for (let key in cart) {
+total += cart[key].qty * cart[key].price;
+}
+document.getElementById("total-price").innerText = total;
+return total;
+}
+async function placeOrder() {
+if (FIREBASE_URL === "APNA_FIREBASE_URL_YAHAN_DALEIN" || !FIREBASE_URL.startsWith("http")) {
+alert("Error: Code mein apna sahi Firebase URL dalein!");
+return;
+}
+const cabin = document.getElementById("cabinSelect").value;
+const custName = document.getElementById("custName").value.trim() || "Guest";
+const total = updateTotal();
+let orderedItems = [];
+for (let key in cart) {
+if (cart[key].qty > 0) {
+orderedItems.push({
+name: key,
+qty: cart[key].qty,
+price: cart[key].qty * cart[key].price
+});
+}
+}
+if (orderedItems.length === 0) {
+alert("Kripya kam se kam ek item select karein!");
+return;
+}
+const btn = document.getElementById("confirmBtn");
+btn.disabled = true;
+btn.innerText = "Sending...";
+const orderData = {
+cabin: cabin,
+customer: custName,
+items: orderedItems,
+total: total,
+status: "Pending",
+time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+};
+try {
+const response = await fetch(${FIREBASE_URL}/orders.json, {
+method: "POST",
+body: JSON.stringify(orderData)
+});
+if (response.ok) {
+document.getElementById("main-container").style.display = "none";
+document.getElementById("order-bar").style.display = "none";
+document.getElementById("success-msg").style.display = "block";
+} else {
+alert("Firebase permission error! Database ko Test Mode mein check karein.");
+btn.disabled = false;
+btn.innerText = "Confirm Order ✔";
+}
+} catch (error) {
+alert("Internet error! Dobara koshish karein.");
+btn.disabled = false;
+btn.innerText = "Confirm Order ✔";
+}
+}
